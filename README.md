@@ -6,7 +6,42 @@ A no-nonsense guide to squeezing every frame and millisecond out of Windows 11 f
 > ```powershell
 > irm christitus.com/win | iex
 > ```
-> If you're comfortable doing things manually, follow this guide for full control.
+> If you're comfortable doing things manually, follow this guide. If you want to automate it yourself, use the included script.
+
+---
+
+## Automated Setup
+
+A `setup.ps1` script is included that automates everything in this guide. It walks you through each section individually — you can run all of it or skip sections you want to handle manually.
+
+```powershell
+# Run PowerShell as Administrator, then:
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\setup.ps1
+```
+
+**What the script does:**
+- Creates a restore point before touching anything
+- Removes Microsoft bloatware and disables telemetry
+- Installs all required apps via winget
+- Configures power plan to Ultimate Performance
+- Applies display, game mode, and GPU scheduling settings
+- Sets DNS to Cloudflare and disables Nagle's Algorithm
+- Disables mouse acceleration
+- Applies all registry tweaks
+- Applies advanced tweaks (HPET, core parking, visual effects)
+- Prompts before each section so you stay in control
+- Lists everything that still requires manual steps at the end
+
+**What the script cannot do** (manual steps always required):
+- GPU driver clean install (requires Safe Mode + DDU)
+- NVIDIA / AMD Control Panel settings
+- Per-device audio enhancement settings
+- G-Sync / FreeSync setup
+- MSI Mode for GPU (requires MSI Utility v3)
+- WinToys (Microsoft Store only)
+
+Read the guide below to understand what each step does before running the script.
 
 ---
 
@@ -32,7 +67,7 @@ A no-nonsense guide to squeezing every frame and millisecond out of Windows 11 f
 ## Before You Start
 
 - **Back up your data.**
-- **Create a restore point:** Start → search "Create a restore point" → Create.
+- **Create a restore point:** Start → search "Create a restore point" → Create. (The script does this automatically.)
 - **Run everything as Administrator** unless stated otherwise.
 - Do these steps in order. Some depend on others.
 
@@ -136,26 +171,15 @@ Remove anything from this list that matches your hardware manufacturer.
 
 ## Required Apps
 
-Two options — use the script or install manually.
+### Automated
 
-### Option A: Automated (Recommended)
-
-An `install-apps.ps1` script is included in this repo. It installs all required apps via winget with a single command. It does **not** touch your registry or system settings — apps only.
-
-1. Right-click `install-apps.ps1` → **Run with PowerShell**
-   Or open PowerShell as Administrator and run:
-   ```powershell
-   Set-ExecutionPolicy Bypass -Scope Process -Force
-   .\install-apps.ps1
-   ```
-2. Follow the on-screen prompts (browser choice, confirmation)
-3. Done — install WinToys from the Microsoft Store manually after (not available on winget)
+Run `setup.ps1` — the app install section handles everything below via winget with a browser choice prompt.
 
 > **winget not working?** Open the Microsoft Store, search **App Installer**, and update it. Then retry.
 
-### Option B: Manual (winget)
+### Manual (winget)
 
-Open PowerShell as Administrator and run the commands below.
+Open PowerShell as Administrator:
 
 ```powershell
 # Browser (pick one)
@@ -189,7 +213,7 @@ winget install CrystalDewWorld.CrystalDiskInfo
 winget install Malwarebytes.Malwarebytes
 ```
 
-Then install **WinToys** from the Microsoft Store manually.
+Then install **WinToys** from the Microsoft Store manually — not available on winget.
 
 ### App Notes
 
@@ -199,7 +223,7 @@ Then install **WinToys** from the Microsoft Store manually.
 
 **Everything (voidtools):** Indexes your entire drive in seconds. Replaces Windows Search. After install, disable Windows Search indexing (covered in the Storage section).
 
-**WinToys:** A clean GUI for Windows settings and tweaks otherwise buried in menus or PowerShell. Install from the Microsoft Store — not on winget.
+**WinToys:** A clean GUI for Windows settings and tweaks otherwise buried in menus or PowerShell. Install from the Microsoft Store.
 
 **Malwarebytes:** Run a full scan after setup. You can leave real-time protection off if you're using Windows Defender — no need for two real-time scanners competing.
 
@@ -480,7 +504,7 @@ Create this key if it doesn't exist, then add:
 |------|------|-------|
 | `AllowGameDVR` | DWORD | `0` |
 
-### Multimedia Class Scheduler (System Responsiveness)
+### Multimedia Class Scheduler
 
 ```
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile
@@ -491,9 +515,7 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\Syste
 | `NetworkThrottlingIndex` | DWORD | `ffffffff` (hex) |
 | `SystemResponsiveness` | DWORD | `0` |
 
-### Disable Auto-Tuning (Network)
-
-Open Command Prompt as Administrator:
+### Disable TCP Auto-Tuning
 
 ```cmd
 netsh int tcp set global autotuninglevel=disabled
@@ -503,7 +525,7 @@ To revert: `netsh int tcp set global autotuninglevel=normal`
 
 ### Disable Spectre/Meltdown Mitigations (Advanced)
 
-> **Warning:** These are CPU security patches. Disabling them is a real security risk. Only do this on a dedicated gaming machine that doesn't handle sensitive data or work. You have been warned.
+> **Warning:** These are CPU security patches. Disabling them is a real security risk. Only do this on a dedicated gaming machine that doesn't handle sensitive data or work.
 
 ```
 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management
@@ -598,7 +620,7 @@ Or manually uncheck everything except:
 
 ## Contributing
 
-PRs welcome. Keep entries accurate, manually reproducible, and sourced. No black-box script dependencies in the main guide.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
